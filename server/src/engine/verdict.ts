@@ -1,3 +1,5 @@
+import { pickLine } from "./voice";
+
 export type Verdict = "YES" | "RISKY" | "NO";
 export type ReasonCode = "OK" | "TOO_EXPENSIVE" | "OVER_BUDGET" | "THIN_BUFFER";
 
@@ -25,10 +27,6 @@ function assertPaisa(name: string, value: number): void {
   }
 }
 
-function rupees(paisa: number): string {
-  return `Rs ${Math.round(paisa / 100).toLocaleString("en-US")}`;
-}
-
 export function getVerdict(input: VerdictInput): VerdictResult {
   const { amount, balance, monthIncome, categoryBudget } = input;
 
@@ -40,42 +38,31 @@ export function getVerdict(input: VerdictInput): VerdictResult {
 
   const remainingBalance = balance - amount;
 
-  if (remainingBalance < 0) {
+  function result(verdict: Verdict, reason: ReasonCode): VerdictResult {
     return {
-      verdict: "NO",
-      reason: "TOO_EXPENSIVE",
+      verdict,
+      reason,
       remainingBalance,
-      message: `Bro has ${rupees(balance)} and wants a ${rupees(amount)} thing. The math says no.`,
+      message: pickLine(reason, { amount, balance, remaining: remainingBalance }),
     };
+  }
+
+  if (remainingBalance < 0) {
+    return result("NO", "TOO_EXPENSIVE");
   }
 
   if (categoryBudget) {
     assertPaisa("budget limit", categoryBudget.limit);
     assertPaisa("budget spent", categoryBudget.spent);
     if (categoryBudget.spent + amount > categoryBudget.limit) {
-      return {
-        verdict: "RISKY",
-        reason: "OVER_BUDGET",
-        remainingBalance,
-        message: "You can pay for it, but your budget for this category is going to cry.",
-      };
+      return result("RISKY", "OVER_BUDGET");
     }
   }
 
   const buffer = Math.floor((monthIncome * BUFFER_PERCENT) / 100);
   if (remainingBalance === 0 || remainingBalance < buffer) {
-    return {
-      verdict: "RISKY",
-      reason: "THIN_BUFFER",
-      remainingBalance,
-      message: `You can afford it, but you'd have ${rupees(remainingBalance)} left. One surprise bill and you're panicking.`,
-    };
+    return result("RISKY", "THIN_BUFFER");
   }
 
-  return {
-    verdict: "YES",
-    reason: "OK",
-    remainingBalance,
-    message: `Go ahead. You'll still have ${rupees(remainingBalance)} left and your future self isn't mad.`,
-  };
+  return result("YES", "OK");
 }

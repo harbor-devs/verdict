@@ -49,8 +49,14 @@ describe("getVerdict", () => {
     expect(result.reason).toBe("THIN_BUFFER");
   });
 
-  it("rejects bad amounts", () => {
-    expect(() => getVerdict({ amount: 0, balance: 1000, monthIncome: 0 })).toThrow();
-    expect(() => getVerdict({ amount: 12.5, balance: 1000, monthIncome: 0 })).toThrow();
+  it("always includes a message", () => {
+    const result = getVerdict({ amount: 100000, balance: 5000000, monthIncome: 1000000 });
+    expect(typeof result.message).toBe("string");
+    expect(result.message.length).toBeGreaterThan(10);
+  });
+
+  it("rejects bad amounts with a RangeError", () => {
+    expect(() => getVerdict({ amount: 0, balance: 1000, monthIncome: 0 })).toThrow(RangeError);
+    expect(() => getVerdict({ amount: 12.5, balance: 1000, monthIncome: 0 })).toThrow(RangeError);
   });
 });
