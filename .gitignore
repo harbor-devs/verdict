@@ -1,0 +1,25 @@
+# dependencies
+node_modules/
+
+# secrets (never commit these)
+.env
+.env.*
+!.env.example
+
+# build output
+dist/
+build/
+coverage/
+.vite/
+
+# logs
+*.log
+npm-debug.log*
+
+# OS files
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# local-only notes
+CLAUDE.local.md
