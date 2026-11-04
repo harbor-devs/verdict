@@ -41,3 +41,5 @@ Discuss, small step, build, run, test, review, commit, next. One thing at a time
 ## Status log
 - 2026-11-04: repo created under harbor-devs, Git set up, docs added, Express server with health route.
 - 2026-11-04: Phase 2 done (PostgreSQL schema and migrations). Phase 3 done: signup, login, logout, /me, scrypt password hashing, cookie sessions (token hash stored in the database), zod validation, helmet, CORS, rate limiting. Failure cases tested by hand, no automated tests yet.
+- 2026-11-04: Phase 2 done (PostgreSQL schema and migrations). Phase 3 done: signup, login, logout, /me, scrypt password hashing, cookie sessions (token hash stored in the database), zod validation, helmet, CORS, rate limiting.
+- 2026-11-04: Phase 4 mostly done: verdict engine (YES, RISKY, NO with a 20 percent buffer rule), humour voice lines, exact money helpers, 16 automated tests. API routes built and hand-tested: transactions (add, list, delete), budgets (set, list, delete), and the "can I afford this?" verdict route. Still to build: savings goals routes, score history, automated route tests (needs a test database).

@@ -5,9 +5,7 @@ import express, { type NextFunction, type Request, type Response } from "express
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import { pool } from "./db";
-import { authRouter } from "./routes/auth";
-import { transactionsRouter } from "./routes/transactions";
-import { verdictRouter } from "./routes/verdict";
+import { apiRouter } from "./routes/api";
 
 const app = express();
 const port = Number(process.env.PORT) || 4000;
@@ -41,9 +39,7 @@ app.get("/api/health/db", async (_req, res) => {
   }
 });
 
-app.use("/api/auth", authRouter);
-app.use("/api/transactions", transactionsRouter);
-app.use("/api/verdict", verdictRouter);
+app.use("/api", apiRouter);
 
 app.use("/api", (_req, res) => {
   res.status(404).json({ error: { code: "not_found", message: "Route not found." } });
