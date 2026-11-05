@@ -3,6 +3,7 @@ import { z } from "zod";
 import { pool } from "../db";
 import { requireAuth, type AuthUser } from "../auth/session";
 import { getScore, MAX_POINTS } from "../engine/score";
+import { getScoreTips, pickScoreLine } from "../engine/scoreVoice";
 import { rupeesToPaisa } from "../lib/money";
 import { sendValidationError } from "../lib/http";
 
@@ -117,7 +118,14 @@ scoreRouter.get("/", async (_req, res) => {
   }
 
   await saveToday(user.id, result.score);
-  res.json({ score: { ...result, maxPoints: MAX_POINTS } });
+  res.json({
+    score: {
+      ...result,
+      maxPoints: MAX_POINTS,
+      message: pickScoreLine(result.band, result.score),
+      tips: getScoreTips(result.hasBudgets, result.hasGoals),
+    },
+  });
 });
 
 scoreRouter.get("/history", async (req, res) => {
