@@ -52,6 +52,20 @@ Discuss, small step, build, run, test, review, commit, next. One thing at a time
 - 2026-11-04: Phase 2 done (PostgreSQL schema and migrations). Phase 3 done: signup, login, logout, /me, scrypt password hashing, cookie sessions (token hash stored in the database), zod validation, helmet, CORS, rate limiting. Failure cases tested by hand, no automated tests yet.
 - 2026-11-04: Verdict engine built (YES, RISKY, NO with a 20 percent buffer rule), humour voice lines, exact money helpers, 16 automated tests. API routes built and hand-tested: transactions (add, list, delete), budgets (set, list, delete), and the "can I afford this?" verdict route.
 - 2026-11-05: Savings goals routes built and hand-tested (add, list with progress, add money, delete). Score engine built with 11 automated tests, plus the score route (saves one row per day in score history) and a score history route, hand-tested.
+## Status log
+- 2026-11-04: repo created under harbor-devs, Git set up, docs added, Express server with health route.
+- 2026-11-04: Phase 2 done (PostgreSQL schema and migrations). Phase 3 done: signup, login, logout, /me, scrypt password hashing, cookie sessions (token hash stored in the database), zod validation, helmet, CORS, rate limiting. Failure cases tested by hand, no automated tests yet.
+- 2026-11-04: Verdict engine built (YES, RISKY, NO with a 20 percent buffer rule), humour voice lines, exact money helpers, 16 automated tests. API routes built and hand-tested: transactions (add, list, delete), budgets (set, list, delete), and the "can I afford this?" verdict route.
+- 2026-11-05: Savings goals routes built and hand-tested (add, list with progress, add money, delete). Score engine built with 11 automated tests, plus the score route (saves one row per day in score history) and a score history route, hand-tested.
+- 2026-11-05: Score humour lines and tips added. Shared amount and date checks moved into one file (lib/validation.ts) and used by the budgets, transactions and goals routes. Backend routes are complete for the first version.
+
+## Still open (backend)
+- Automated route tests (needs a separate test database)
+- Editing transactions and budgets (only add and delete exist)
+- Deploy settings: trust proxy, CSRF review, secure cookies
+
+## Next
+Phase 5: frontend (React, Vite, Tailwind, TypeScript) connected to the real API. Decide screens and design direction first.
 
 ## Still open (backend)
 - Humour lines for the score bands
