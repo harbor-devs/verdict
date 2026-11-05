@@ -1,27 +1,28 @@
+import { Navigate, Route, Routes } from 'react-router'
+import { useAuth } from './lib/authContext'
+import AuthPage from './pages/AuthPage'
+import HomePage from './pages/HomePage'
+
 export default function App() {
+  const { user, loading } = useAuth()
+
+  // Wait until we know whether the visitor is logged in
+  if (loading) {
+    return <p className="p-6 text-muted">Loading...</p>
+  }
+
   return (
-    <main className="mx-auto max-w-md p-6">
-      <h1 className="font-display text-4xl font-bold tracking-tight">
-        Verdict<span className="text-yes">.</span>
-      </h1>
-      <p className="mt-1 text-muted">Money with receipts.</p>
-
-      <section className="mt-8 rounded-2xl border border-line bg-card p-5">
-        <p className="text-sm text-muted">Can I afford this?</p>
-        <p className="mt-1 font-mono text-3xl font-medium">Rs 3,200.00</p>
-
-        <div className="mt-5 flex gap-3">
-          <span className="-rotate-6 rounded-md border-2 border-yes px-3 py-1 font-display text-xl font-extrabold tracking-wide text-yes">
-            YES
-          </span>
-          <span className="rotate-3 rounded-md border-2 border-risky px-3 py-1 font-display text-xl font-extrabold tracking-wide text-risky">
-            RISKY
-          </span>
-          <span className="-rotate-3 rounded-md border-2 border-no px-3 py-1 font-display text-xl font-extrabold tracking-wide text-no">
-            NO
-          </span>
-        </div>
-      </section>
-    </main>
+    <Routes>
+      <Route
+        path="/login"
+        element={user ? <Navigate to="/" replace /> : <AuthPage mode="login" />}
+      />
+      <Route
+        path="/signup"
+        element={user ? <Navigate to="/" replace /> : <AuthPage mode="signup" />}
+      />
+      <Route path="/" element={user ? <HomePage /> : <Navigate to="/login" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   )
 }
