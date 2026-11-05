@@ -3,19 +3,12 @@ import { z } from "zod";
 import { pool } from "../db";
 import { requireAuth, type AuthUser } from "../auth/session";
 import { rupeesToPaisa, paisaToRupees } from "../lib/money";
+import { isPositiveAmount } from "../lib/validation";
 import { sendNotFound, sendValidationError } from "../lib/http";
 
 export const budgetsRouter = Router();
 
 budgetsRouter.use(requireAuth);
-
-function isPositiveAmount(value: string | number): boolean {
-  try {
-    return rupeesToPaisa(value) > 0;
-  } catch {
-    return false;
-  }
-}
 
 const saveSchema = z.object({
   category: z.string().trim().min(1, "Pick a category").max(40, "Category is too long").toLowerCase(),

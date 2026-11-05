@@ -3,25 +3,13 @@ import { z } from "zod";
 import { pool } from "../db";
 import { requireAuth, type AuthUser } from "../auth/session";
 import { paisaToRupees, rupeesToPaisa } from "../lib/money";
+import { isPositiveAmount, isRealDate } from "../lib/validation";
 import { sendNotFound, sendValidationError } from "../lib/http";
 
 export const transactionsRouter = Router();
 
 // Every route in this file needs a logged in user.
 transactionsRouter.use(requireAuth);
-
-function isPositiveAmount(value: string | number): boolean {
-  try {
-    return rupeesToPaisa(value) > 0;
-  } catch {
-    return false;
-  }
-}
-
-function isRealDate(value: string): boolean {
-  const date = new Date(`${value}T00:00:00Z`);
-  return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
-}
 
 const createSchema = z.object({
   kind: z.enum(["income", "expense"], { message: "Choose income or expense" }),
