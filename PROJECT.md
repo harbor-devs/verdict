@@ -56,7 +56,7 @@ Discuss, small step, build, run, test, review, commit, next. One thing at a time
 - API: src/api/client.ts has api<T>(path, { method, body }). It sends the cookie and throws ApiError(status, code, message, fields). Response types live in src/api/types.ts.
 - Money: the server sends amounts as text like "1234.50". The client only formats them (src/lib/format.ts) and never does money math.
 - Auth: src/lib/authContext.ts (useAuth) and AuthProvider.tsx. User = { id, email, displayName, currency }.
-- Screens: Sign up and Log in (done), Home (built), Transactions, Budgets, Goals, Can I afford this? (not built).
+- Screens: Sign up and Log in (done), Home (done), Transactions (built), Budgets, Goals, Can I afford this? (not built). A shared navigation bar and the design pass come after the screens.
 
 ## Status log
 - 2026-11-04: repo created under harbor-devs, Git set up, docs added, Express server with health route.
@@ -65,12 +65,14 @@ Discuss, small step, build, run, test, review, commit, next. One thing at a time
 - 2026-11-05: Savings goals routes built and hand-tested (add, list with progress, add money, delete). Score engine built with 11 automated tests, plus the score route (saves one row per day in score history) and a score history route, hand-tested.
 - 2026-11-05: Score humour lines and tips added. Shared amount and date checks moved into lib/validation.ts and used by the budgets, transactions and goals routes. Backend routes are complete for the first version.
 - 2026-11-05: Phase 5 started. Frontend setup, design direction, fonts, API helper, auth context and the Log in and Sign up screen done and tested by hand (signup, login, refresh keeps session, logout).
-- 2026-11-05: Added GET /api/summary (balance, this month's income and spending), checked by hand in the browser. Home screen built (balance, month receipt, score card). Empty state checked in the browser. The filled state (score, stamp, funny line) is not checked yet because there is no way to add transactions from the UI.
+- 2026-11-05: Added GET /api/summary (balance, this month's income and spending), checked by hand in the browser. Home screen built (balance, month receipt, score card). Empty state checked in the browser.
+- 2026-11-07: Transactions screen built (newest 50, add form, delete with a confirm step). Adding checked by hand: the Home balance, month totals and score matched the entries. List and delete: hand test pending.
 
 ## Still open (backend)
 - Automated route tests (needs a separate test database)
 - Editing transactions and budgets (only add and delete exist)
+- Month filter for the transactions list (it returns the newest 50 from all months)
 - Deploy settings: trust proxy, CSRF review, secure cookies
 
 ## Next
-Transactions screen: list this month's transactions, add one, delete one. Then check the Home score card with real data.
+Budgets screen: set a monthly limit per category, list, delete. Then check the budget points on the Home score card.
