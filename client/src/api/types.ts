@@ -36,6 +36,15 @@ export type ScoreResponse = {
 
 export type TransactionKind = 'income' | 'expense'
 
+export type Budget = {
+  id: string
+  category: string
+  monthlyLimit: string // rupees as text, like "5000.00"
+  spentThisMonth: string // spent in this category this month, as text
+}
+
+export type BudgetsResponse = { budgets: Budget[] }
+
 export type Transaction = {
   id: string
   kind: TransactionKind
