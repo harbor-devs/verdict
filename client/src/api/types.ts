@@ -59,6 +59,20 @@ export type Goal = {
 
 export type GoalsResponse = { goals: Goal[] }
 
+export type VerdictLevel = 'YES' | 'RISKY' | 'NO'
+
+export type VerdictReason = 'OK' | 'TOO_EXPENSIVE' | 'OVER_BUDGET' | 'THIN_BUFFER'
+
+export type VerdictResponse = {
+  verdict: VerdictLevel
+  reason: VerdictReason
+  message: string // the funny line, written by the server
+  amount: string // the price you asked about, as text
+  balance: string // balance right now, as text
+  remainingBalance: string // balance after buying (can be negative), as text
+  budget: { limit: string; spentThisMonth: string } | null // null when the category has no budget
+}
+
 export type Transaction = {
   id: string
   kind: TransactionKind
