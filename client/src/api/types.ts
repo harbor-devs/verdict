@@ -45,6 +45,20 @@ export type Budget = {
 
 export type BudgetsResponse = { budgets: Budget[] }
 
+export type Goal = {
+  id: string
+  name: string
+  targetAmount: string // rupees as text, like "50000.00"
+  savedAmount: string // saved so far, as text
+  remaining: string // target minus saved (never below zero), as text
+  percent: number // whole number 0 to 100, worked out by the server
+  reached: boolean
+  targetDate: string | null // like "2026-12-31"
+  createdAt: string
+}
+
+export type GoalsResponse = { goals: Goal[] }
+
 export type Transaction = {
   id: string
   kind: TransactionKind

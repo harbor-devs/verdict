@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router'
 import { useAuth } from './lib/authContext'
 import AuthPage from './pages/AuthPage'
 import BudgetsPage from './pages/BudgetsPage'
+import GoalsPage from './pages/GoalsPage'
 import HomePage from './pages/HomePage'
 import TransactionsPage from './pages/TransactionsPage'
 
@@ -32,6 +33,7 @@ export default function App() {
         path="/budgets"
         element={user ? <BudgetsPage /> : <Navigate to="/login" replace />}
       />
+      <Route path="/goals" element={user ? <GoalsPage /> : <Navigate to="/login" replace />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
