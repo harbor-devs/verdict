@@ -1,4 +1,4 @@
-// The shapes of data the backend sends to the Home screen.
+// The shapes of data the backend sends to the screens.
 
 export type SummaryResponse = {
   summary: {
@@ -33,3 +33,17 @@ export type ScoreResponse = {
         tips: string[]
       }
 }
+
+export type TransactionKind = 'income' | 'expense'
+
+export type Transaction = {
+  id: string
+  kind: TransactionKind
+  amount: string // rupees as text, like "1200.00"
+  category: string
+  note: string | null
+  occurredOn: string // like "2026-11-05"
+  createdAt: string
+}
+
+export type TransactionsResponse = { transactions: Transaction[] }

@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router'
 import { useAuth } from './lib/authContext'
 import AuthPage from './pages/AuthPage'
 import HomePage from './pages/HomePage'
+import TransactionsPage from './pages/TransactionsPage'
 
 export default function App() {
   const { user, loading } = useAuth()
@@ -22,6 +23,10 @@ export default function App() {
         element={user ? <Navigate to="/" replace /> : <AuthPage mode="signup" />}
       />
       <Route path="/" element={user ? <HomePage /> : <Navigate to="/login" replace />} />
+      <Route
+        path="/transactions"
+        element={user ? <TransactionsPage /> : <Navigate to="/login" replace />}
+      />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
