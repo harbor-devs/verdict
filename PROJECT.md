@@ -56,7 +56,7 @@ Discuss, small step, build, run, test, review, commit, next. One thing at a time
 - API: src/api/client.ts has api<T>(path, { method, body }). It sends the cookie and throws ApiError(status, code, message, fields). Response types live in src/api/types.ts.
 - Money: the server sends amounts as text like "1234.50". The client only formats them (src/lib/format.ts) and never does money math.
 - Auth: src/lib/authContext.ts (useAuth) and AuthProvider.tsx. User = { id, email, displayName, currency }.
-- Screens: Sign up and Log in (done), Home (done), Transactions (built), Budgets, Goals, Can I afford this? (not built). A shared navigation bar and the design pass come after the screens.
+- Screens: Sign up and Log in (done), Home (done), Transactions (done), Budgets (done), Goals, Can I afford this? (not built). A shared navigation bar and the design pass come after the screens.
 
 ## Status log
 - 2026-11-04: repo created under harbor-devs, Git set up, docs added, Express server with health route.
@@ -66,7 +66,8 @@ Discuss, small step, build, run, test, review, commit, next. One thing at a time
 - 2026-11-05: Score humour lines and tips added. Shared amount and date checks moved into lib/validation.ts and used by the budgets, transactions and goals routes. Backend routes are complete for the first version.
 - 2026-11-05: Phase 5 started. Frontend setup, design direction, fonts, API helper, auth context and the Log in and Sign up screen done and tested by hand (signup, login, refresh keeps session, logout).
 - 2026-11-05: Added GET /api/summary (balance, this month's income and spending), checked by hand in the browser. Home screen built (balance, month receipt, score card). Empty state checked in the browser.
-- 2026-11-07: Transactions screen built (newest 50, add form, delete with a confirm step). Adding checked by hand: the Home balance, month totals and score matched the entries. List and delete: hand test pending.
+- 2026-11-07: Transactions screen built (newest 50, add form, delete with a confirm step). Add, list and delete all checked by hand: Home balance, month totals and score matched.
+- 2026-11-07: Budgets screen built (set or change a limit, list with spent so far and a bar, delete with a confirm step). Checked by hand: update of an existing category, empty form error, delete, and the Home budget points (30 when within limit, 0 when over, 15 with no budgets).
 
 ## Still open (backend)
 - Automated route tests (needs a separate test database)
@@ -75,4 +76,4 @@ Discuss, small step, build, run, test, review, commit, next. One thing at a time
 - Deploy settings: trust proxy, CSRF review, secure cookies
 
 ## Next
-Budgets screen: set a monthly limit per category, list, delete. Then check the budget points on the Home score card.
+Goals screen: add a goal, list with progress, add money, delete. Same pattern as the Budgets screen. Then Can I afford this?
