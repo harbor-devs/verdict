@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router'
+import NavBar from './components/NavBar'
 import { useAuth } from './lib/authContext'
 import AffordPage from './pages/AffordPage'
 import AuthPage from './pages/AuthPage'
@@ -16,27 +17,33 @@ export default function App() {
   }
 
   return (
-    <Routes>
-      <Route
-        path="/login"
-        element={user ? <Navigate to="/" replace /> : <AuthPage mode="login" />}
-      />
-      <Route
-        path="/signup"
-        element={user ? <Navigate to="/" replace /> : <AuthPage mode="signup" />}
-      />
-      <Route path="/" element={user ? <HomePage /> : <Navigate to="/login" replace />} />
-      <Route
-        path="/transactions"
-        element={user ? <TransactionsPage /> : <Navigate to="/login" replace />}
-      />
-      <Route
-        path="/budgets"
-        element={user ? <BudgetsPage /> : <Navigate to="/login" replace />}
-      />
-      <Route path="/goals" element={user ? <GoalsPage /> : <Navigate to="/login" replace />} />
-      <Route path="/afford" element={user ? <AffordPage /> : <Navigate to="/login" replace />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    <>
+      {user && <NavBar />}
+      <Routes>
+        <Route
+          path="/login"
+          element={user ? <Navigate to="/" replace /> : <AuthPage mode="login" />}
+        />
+        <Route
+          path="/signup"
+          element={user ? <Navigate to="/" replace /> : <AuthPage mode="signup" />}
+        />
+        <Route path="/" element={user ? <HomePage /> : <Navigate to="/login" replace />} />
+        <Route
+          path="/transactions"
+          element={user ? <TransactionsPage /> : <Navigate to="/login" replace />}
+        />
+        <Route
+          path="/budgets"
+          element={user ? <BudgetsPage /> : <Navigate to="/login" replace />}
+        />
+        <Route path="/goals" element={user ? <GoalsPage /> : <Navigate to="/login" replace />} />
+        <Route
+          path="/afford"
+          element={user ? <AffordPage /> : <Navigate to="/login" replace />}
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </>
   )
 }
