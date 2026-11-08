@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router'
 import { api, ApiError } from '../api/client'
 import type { Transaction, TransactionsResponse } from '../api/types'
+import { Card, PageHeader } from '../components/CaseFile'
+import { ReceiptPaper } from '../components/Receipt'
 import TransactionForm from '../components/TransactionForm'
 import { useAuth } from '../lib/authContext'
 import { formatMoney } from '../lib/format'
@@ -71,100 +72,112 @@ export default function TransactionsPage() {
   const currency = user?.currency ?? 'PKR'
 
   return (
-    <main className="mx-auto max-w-md px-5 py-6">
-      <Link to="/" className="text-sm font-medium underline underline-offset-4">
-        Back to Home
-      </Link>
-      <h1 className="mt-4 font-display text-3xl font-bold">Transactions</h1>
-      <p className="mt-1 text-muted">Every rupee in and out, with receipts.</p>
+    <main className="mx-auto flex w-full max-w-6xl flex-col px-5 py-4 md:h-full md:px-14">
+      <PageHeader label="The evidence" title="Every exhibit on file." note="receipts do not lie" />
 
-      <section className="mt-5 rounded-2xl border border-line bg-card p-5">
-        <h2 className="font-display text-xl font-bold">Add one</h2>
-        <TransactionForm onAdded={() => setReloadKey((key) => key + 1)} />
-      </section>
+      <div className="grid gap-9 md:min-h-0 md:flex-1 md:grid-cols-[1fr_360px] md:grid-rows-[minmax(0,1fr)] md:gap-10 md:pb-3">
+        <div>
+          <Card tab="File a new exhibit" className="max-w-lg">
+            <TransactionForm onAdded={() => setReloadKey((key) => key + 1)} />
+          </Card>
+        </div>
 
-      <section className="mt-4 rounded-2xl border border-line bg-card p-5">
-        <h2 className="font-display text-xl font-bold">Latest</h2>
-        <p className="mt-0.5 text-sm text-muted">Newest 50, from all months.</p>
+        <ReceiptPaper title="Evidence.">
+          <p className="mb-1 text-center text-xs text-muted">Newest 50, from all months.</p>
 
-        {deleteError && (
-          <p role="alert" className="mt-3 text-sm text-no">
-            {deleteError}
-          </p>
-        )}
+          {deleteError && (
+            <p role="alert" className="my-2 text-center text-sm text-no">
+              {deleteError}
+            </p>
+          )}
 
-        {state.kind === 'loading' && <p className="mt-4 text-muted">Counting your money...</p>}
+          {state.kind === 'loading' && (
+            <p className="mt-4 text-center text-muted">Counting your money...</p>
+          )}
 
-        {state.kind === 'error' && (
-          <div role="alert" className="mt-4">
-            <p className="text-no">{state.message}</p>
-            <button
-              type="button"
-              onClick={() => {
-                setState({ kind: 'loading' })
-                setReloadKey((key) => key + 1)
-              }}
-              className="mt-3 rounded-lg bg-ink px-4 py-2 font-medium text-paper"
-            >
-              Try again
-            </button>
-          </div>
-        )}
+          {state.kind === 'error' && (
+            <div role="alert" className="mt-4 text-center">
+              <p className="text-no">{state.message}</p>
+              <button
+                type="button"
+                onClick={() => {
+                  setState({ kind: 'loading' })
+                  setReloadKey((key) => key + 1)
+                }}
+                className="mt-3 rounded-md bg-ink px-4 py-2 font-bold text-paper"
+              >
+                Try again
+              </button>
+            </div>
+          )}
 
-        {state.kind === 'ready' && state.items.length === 0 && (
-          <p className="mt-4 text-muted">Nothing logged yet. Your wallet is suspiciously quiet.</p>
-        )}
+          {state.kind === 'ready' && state.items.length === 0 && (
+            <p className="mt-4 text-center text-muted">
+              Nothing logged yet. Your wallet is suspiciously quiet.
+            </p>
+          )}
 
-        {state.kind === 'ready' && state.items.length > 0 && (
-          <ul className="mt-3 divide-y divide-dashed divide-line border-y border-dashed border-line">
-            {state.items.map((item) => (
-              <li key={item.id} className="flex items-start justify-between gap-4 py-3">
-                <div className="min-w-0">
-                  <p className="font-medium capitalize">{item.category}</p>
-                  {item.note && <p className="truncate text-sm text-muted">{item.note}</p>}
-                  <p className="text-sm text-muted">{formatDay(item.occurredOn)}</p>
-                </div>
-
-                <div className="flex shrink-0 flex-col items-end gap-1">
-                  <p className={`font-mono ${item.kind === 'income' ? 'text-yes' : 'text-ink'}`}>
-                    {item.kind === 'income' ? '+' : '-'}
-                    {formatMoney(item.amount, currency)}
-                  </p>
-
-                  {confirmingId === item.id ? (
-                    <span className="flex items-center gap-3 text-sm">
-                      <button
-                        type="button"
-                        disabled={deletingId === item.id}
-                        onClick={() => void handleDelete(item.id)}
-                        className="font-medium text-no underline underline-offset-4 disabled:opacity-60"
-                      >
-                        {deletingId === item.id ? 'Deleting...' : 'Yes, delete'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setConfirmingId(null)}
-                        className="text-muted underline underline-offset-4"
-                      >
-                        Keep
-                      </button>
-                    </span>
-                  ) : (
-                    <button
-                      type="button"
-                      aria-label={`Delete ${item.category} transaction`}
-                      onClick={() => setConfirmingId(item.id)}
-                      className="text-sm text-muted underline underline-offset-4 hover:text-no"
+          {state.kind === 'ready' && state.items.length > 0 && (
+            <ul className="divide-y-2 divide-dashed divide-line">
+              {state.items.map((item, index) => (
+                <li key={item.id} className="py-2.5">
+                  <div className="flex items-baseline gap-2">
+                    <span className="min-w-0 truncate font-medium capitalize">{item.category}</span>
+                    <span
+                      aria-hidden="true"
+                      className="min-w-3 flex-1 border-b-2 border-dotted border-line"
+                    />
+                    <span
+                      className={`shrink-0 font-receipt text-sm font-bold ${
+                        item.kind === 'income' ? 'text-yes' : 'text-ink'
+                      }`}
                     >
-                      Delete
-                    </button>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+                      {item.kind === 'income' ? '+' : '-'}
+                      {formatMoney(item.amount, currency)}
+                    </span>
+                  </div>
+
+                  <div className="mt-0.5 flex items-center justify-between gap-3 text-xs text-muted">
+                    <span className="min-w-0 truncate font-receipt uppercase">
+                      EXH. {state.items.length - index} · {formatDay(item.occurredOn)}
+                      {item.note ? ` · ${item.note}` : ''}
+                    </span>
+
+                    {confirmingId === item.id ? (
+                      <span className="flex shrink-0 items-center gap-3">
+                        <button
+                          type="button"
+                          disabled={deletingId === item.id}
+                          onClick={() => void handleDelete(item.id)}
+                          className="font-bold text-no underline underline-offset-4 disabled:opacity-60"
+                        >
+                          {deletingId === item.id ? 'Deleting...' : 'Yes, delete'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setConfirmingId(null)}
+                          className="underline underline-offset-4"
+                        >
+                          Keep
+                        </button>
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        aria-label={`Delete ${item.category} transaction`}
+                        onClick={() => setConfirmingId(item.id)}
+                        className="shrink-0 underline underline-offset-4 hover:text-no"
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </ReceiptPaper>
+      </div>
     </main>
   )
 }

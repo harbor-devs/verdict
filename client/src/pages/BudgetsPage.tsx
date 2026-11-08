@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router'
 import { api, ApiError } from '../api/client'
 import type { Budget, BudgetsResponse } from '../api/types'
 import BudgetForm from '../components/BudgetForm'
+import { Card, PageHeader } from '../components/CaseFile'
+import { ReceiptPaper, Stamp } from '../components/Receipt'
 import { useAuth } from '../lib/authContext'
 import { formatMoney } from '../lib/format'
 
@@ -72,111 +73,122 @@ export default function BudgetsPage() {
   const currency = user?.currency ?? 'PKR'
 
   return (
-    <main className="mx-auto max-w-md px-5 py-6">
-      <Link to="/" className="text-sm font-medium underline underline-offset-4">
-        Back to Home
-      </Link>
-      <h1 className="mt-4 font-display text-3xl font-bold">Budgets</h1>
-      <p className="mt-1 text-muted">A limit per category, checked against this month.</p>
+    <main className="mx-auto flex w-full max-w-6xl flex-col px-5 py-4 md:h-full md:px-14">
+      <PageHeader
+        label="The house rules"
+        title="The limits."
+        note="set the rules, then follow them"
+      />
 
-      <section className="mt-5 rounded-2xl border border-line bg-card p-5">
-        <h2 className="font-display text-xl font-bold">Set a budget</h2>
-        <BudgetForm onSaved={() => setReloadKey((key) => key + 1)} />
-      </section>
+      <div className="grid gap-9 md:min-h-0 md:flex-1 md:grid-cols-[1fr_360px] md:grid-rows-[minmax(0,1fr)] md:gap-10 md:pb-3">
+        <div>
+          <Card tab="Set a limit" className="max-w-md">
+            <BudgetForm onSaved={() => setReloadKey((key) => key + 1)} />
+          </Card>
+        </div>
 
-      <section className="mt-4 rounded-2xl border border-line bg-card p-5">
-        <h2 className="font-display text-xl font-bold">Your budgets</h2>
-        <p className="mt-0.5 text-sm text-muted">Spending counts expenses from this month only.</p>
-
-        {deleteError && (
-          <p role="alert" className="mt-3 text-sm text-no">
-            {deleteError}
+        <ReceiptPaper title="Limits.">
+          <p className="mb-1 text-center text-xs text-muted">
+            Spending counts expenses from this month only.
           </p>
-        )}
 
-        {state.kind === 'loading' && <p className="mt-4 text-muted">Counting your money...</p>}
+          {deleteError && (
+            <p role="alert" className="my-2 text-center text-sm text-no">
+              {deleteError}
+            </p>
+          )}
 
-        {state.kind === 'error' && (
-          <div role="alert" className="mt-4">
-            <p className="text-no">{state.message}</p>
-            <button
-              type="button"
-              onClick={() => {
-                setState({ kind: 'loading' })
-                setReloadKey((key) => key + 1)
-              }}
-              className="mt-3 rounded-lg bg-ink px-4 py-2 font-medium text-paper"
-            >
-              Try again
-            </button>
-          </div>
-        )}
+          {state.kind === 'loading' && (
+            <p className="mt-4 text-center text-muted">Counting your money...</p>
+          )}
 
-        {state.kind === 'ready' && state.items.length === 0 && (
-          <p className="mt-4 text-muted">No budgets yet. Spending freely, are we?</p>
-        )}
+          {state.kind === 'error' && (
+            <div role="alert" className="mt-4 text-center">
+              <p className="text-no">{state.message}</p>
+              <button
+                type="button"
+                onClick={() => {
+                  setState({ kind: 'loading' })
+                  setReloadKey((key) => key + 1)
+                }}
+                className="mt-3 rounded-md bg-ink px-4 py-2 font-bold text-paper"
+              >
+                Try again
+              </button>
+            </div>
+          )}
 
-        {state.kind === 'ready' && state.items.length > 0 && (
-          <ul className="mt-3 divide-y divide-dashed divide-line border-y border-dashed border-line">
-            {state.items.map((item) => {
-              const { percent, over, near } = usage(item)
-              return (
-                <li key={item.id} className="py-3">
-                  <div className="flex items-start justify-between gap-4">
-                    <p className="font-medium capitalize">{item.category}</p>
-                    <p className="shrink-0 font-mono text-sm">
+          {state.kind === 'ready' && state.items.length === 0 && (
+            <p className="mt-4 text-center text-muted">No budgets yet. Spending freely, are we?</p>
+          )}
+
+          {state.kind === 'ready' && state.items.length > 0 && (
+            <ul className="divide-y-2 divide-dashed divide-line">
+              {state.items.map((item) => {
+                const { percent, over, near } = usage(item)
+                return (
+                  <li key={item.id} className="py-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-base font-bold capitalize">{item.category}</p>
+                      {over && (
+                        <Stamp tone="no" size="sm">
+                          Over
+                        </Stamp>
+                      )}
+                    </div>
+                    <p className="font-receipt text-xs">
                       {formatMoney(item.spentThisMonth, currency)} of{' '}
                       {formatMoney(item.monthlyLimit, currency)}
                     </p>
-                  </div>
 
-                  <div className="mt-2 h-2 overflow-hidden rounded-full bg-line">
-                    <div
-                      className={`h-full rounded-full ${over ? 'bg-no' : near ? 'bg-risky' : 'bg-yes'}`}
-                      style={{ width: `${percent}%` }}
-                    />
-                  </div>
+                    <div className="mt-1.5 h-[14px] border-2 border-edge bg-tab">
+                      <div
+                        className={`h-full ${over ? 'bg-no' : near ? 'bg-risky' : 'bg-yes'}`}
+                        style={{ width: `${percent}%` }}
+                      />
+                    </div>
 
-                  <div className="mt-2 flex items-center justify-between gap-4">
-                    <p className={`text-sm ${over ? 'font-medium text-no' : 'text-muted'}`}>
-                      {over ? 'Over the limit' : near ? 'Close to the limit' : `${percent}% used`}
-                    </p>
+                    <div className="mt-1.5 flex items-center justify-between gap-3 text-xs">
+                      <p className={over ? 'font-bold text-no' : 'text-muted'}>
+                        {over ? 'Over the limit' : near ? 'Close to the limit' : `${percent}% used`}
+                      </p>
 
-                    {confirmingId === item.id ? (
-                      <span className="flex items-center gap-3 text-sm">
+                      {confirmingId === item.id ? (
+                        <span className="flex items-center gap-3">
+                          <button
+                            type="button"
+                            disabled={deletingId === item.id}
+                            onClick={() => void handleDelete(item.id)}
+                            className="font-bold text-no underline underline-offset-4 disabled:opacity-60"
+                          >
+                            {deletingId === item.id ? 'Deleting...' : 'Yes, delete'}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setConfirmingId(null)}
+                            className="text-muted underline underline-offset-4" 
+                          >
+                            Keep
+                          </button>
+                        </span>
+                      ) : (
                         <button
                           type="button"
-                          disabled={deletingId === item.id}
-                          onClick={() => void handleDelete(item.id)}
-                          className="font-medium text-no underline underline-offset-4 disabled:opacity-60"
+                          aria-label={`Delete ${item.category} budget`}
+                          onClick={() => setConfirmingId(item.id)}
+                          className="text-muted underline underline-offset-4 hover:text-no"
                         >
-                          {deletingId === item.id ? 'Deleting...' : 'Yes, delete'}
+                          Delete
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => setConfirmingId(null)}
-                          className="text-muted underline underline-offset-4"
-                        >
-                          Keep
-                        </button>
-                      </span>
-                    ) : (
-                      <button
-                        type="button"
-                        aria-label={`Delete ${item.category} budget`}
-                        onClick={() => setConfirmingId(item.id)}
-                        className="text-sm text-muted underline underline-offset-4 hover:text-no"
-                      >
-                        Delete
-                      </button>
-                    )}
-                  </div>
-                </li>
-              )
-            })}
-          </ul>
-        )}
-      </section>
+                      )}
+                    </div>
+                  </li>
+                )
+              })}
+            </ul>
+          )}
+        </ReceiptPaper>
+      </div>
     </main>
   )
 }

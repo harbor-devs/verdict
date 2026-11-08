@@ -1,0 +1,94 @@
+/* A row: label, dotted line, amount. The dots are decoration only. */
+.ledger-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 10px 0;
+}
+.ledger-row dt {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: baseline;
+  gap: 8px;
+}
+.ledger-row dt::after {
+  content: '';
+  flex: 1;
+  border-bottom: 2px dotted currentColor;
+  opacity: 0.35;
+}
+
+/* Rubber stamp: tilted, double ring, thumps down once */
+.stamp {
+  display: inline-block;
+  rotate: -6deg;
+  border-style: solid;
+  border-radius: 6px;
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+  animation: stamp-thump 0.45s cubic-bezier(0.2, 0.8, 0.3, 1) 0.3s backwards;
+}
+
+@keyframes stamp-thump {
+  0% {
+    scale: 2.2;
+    opacity: 0;
+  }
+  60% {
+    scale: 0.94;
+    opacity: 1;
+  }
+  100% {
+    scale: 1;
+    opacity: 1;
+  }
+}
+
+/* Till receipt: torn zigzag top and bottom edge. The shadow wrapper
+   draws the hard shadow around the torn shape. */
+.receipt-shadow {
+  filter: drop-shadow(0 3px 3px rgb(31 29 26 / 0.3));
+}
+.receipt {
+  --zig: 10px;
+  background: #ffffff;
+  mask:
+    conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom /
+      var(--zig) 51% repeat-x,
+    conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) top / var(--zig) 51%
+      repeat-x;
+}
+
+/* The receipt prints out line by line, in steps */
+.receipt-print {
+  animation: receipt-print 0.9s steps(16) backwards;
+}
+@keyframes receipt-print {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* Barcode at the bottom of the receipt. Decoration only. */
+.receipt-barcode {
+  background: repeating-linear-gradient(
+    90deg,
+    #1f1d1a 0 2px,
+    transparent 2px 4px,
+    #1f1d1a 4px 5px,
+    transparent 5px 8px,
+    #1f1d1a 8px 11px,
+    transparent 11px 13px
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stamp,
+  .receipt-print {
+    animation: none;
+  }
+}

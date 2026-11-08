@@ -1,27 +1,9 @@
-import { useState, type FormEvent, type ReactNode } from 'react'
+import { useState, type FormEvent } from 'react'
 import { api, ApiError } from '../api/client'
+import { inputClass, primaryButtonClass } from '../lib/formStyles'
+import { Field } from './FormBits'
 
 type Props = { onSaved: () => void }
-
-function inputClass(hasError: boolean): string {
-  return `mt-1.5 w-full rounded-lg border bg-card px-3.5 py-2.5 text-base outline-none transition focus:ring-2 focus:ring-yes/30 ${
-    hasError ? 'border-no' : 'border-line focus:border-yes'
-  }`
-}
-
-type FieldProps = { id: string; label: string; error?: string; children: ReactNode }
-
-function Field({ id, label, error, children }: FieldProps) {
-  return (
-    <div>
-      <label htmlFor={id} className="block text-sm font-medium">
-        {label}
-      </label>
-      {children}
-      {error && <p className="mt-1 text-sm text-no">{error}</p>}
-    </div>
-  )
-}
 
 export default function GoalForm({ onSaved }: Props) {
   const [name, setName] = useState('')
@@ -65,7 +47,7 @@ export default function GoalForm({ onSaved }: Props) {
   const hasFieldErrors = Object.keys(fieldErrors).length > 0
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="mt-4 space-y-4">
+    <form onSubmit={handleSubmit} noValidate className="space-y-4">
       <Field id="goal-name" label="What are you saving for?" error={fieldErrors.name}>
         <input
           id="goal-name"
@@ -86,7 +68,7 @@ export default function GoalForm({ onSaved }: Props) {
           value={targetAmount}
           onChange={(event) => setTargetAmount(event.target.value)}
           aria-invalid={fieldErrors.targetAmount ? true : undefined}
-          className={`${inputClass(Boolean(fieldErrors.targetAmount))} font-mono`}
+          className={inputClass(Boolean(fieldErrors.targetAmount))}
         />
       </Field>
 
@@ -107,12 +89,8 @@ export default function GoalForm({ onSaved }: Props) {
         </p>
       )}
 
-      <button
-        type="submit"
-        disabled={submitting}
-        className="w-full rounded-lg bg-ink px-4 py-3 font-medium text-paper transition hover:bg-ink/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink disabled:opacity-60"
-      >
-        {submitting ? 'One sec...' : 'Add goal'}
+      <button type="submit" disabled={submitting} className={primaryButtonClass}>
+        {submitting ? 'One sec...' : 'Open the file'}
       </button>
     </form>
   )

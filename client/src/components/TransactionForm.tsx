@@ -1,6 +1,8 @@
-import { useState, type FormEvent, type ReactNode } from 'react'
+import { useState, type FormEvent } from 'react'
 import { api, ApiError } from '../api/client'
 import type { TransactionKind } from '../api/types'
+import { inputClass, primaryButtonClass } from '../lib/formStyles'
+import { CategoryChips, Field } from './FormBits'
 
 type Props = { onAdded: () => void }
 
@@ -23,26 +25,6 @@ function todayLocal(): string {
   const month = String(now.getMonth() + 1).padStart(2, '0')
   const day = String(now.getDate()).padStart(2, '0')
   return `${now.getFullYear()}-${month}-${day}`
-}
-
-function inputClass(hasError: boolean): string {
-  return `mt-1.5 w-full rounded-lg border bg-card px-3.5 py-2.5 text-base outline-none transition focus:ring-2 focus:ring-yes/30 ${
-    hasError ? 'border-no' : 'border-line focus:border-yes'
-  }`
-}
-
-type FieldProps = { id: string; label: string; error?: string; children: ReactNode }
-
-function Field({ id, label, error, children }: FieldProps) {
-  return (
-    <div>
-      <label htmlFor={id} className="block text-sm font-medium">
-        {label}
-      </label>
-      {children}
-      {error && <p className="mt-1 text-sm text-no">{error}</p>}
-    </div>
-  )
 }
 
 export default function TransactionForm({ onAdded }: Props) {
@@ -94,7 +76,7 @@ export default function TransactionForm({ onAdded }: Props) {
   const hasFieldErrors = Object.keys(fieldErrors).length > 0
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="mt-4 space-y-4">
+    <form onSubmit={handleSubmit} noValidate className="space-y-4">
       <div className="grid grid-cols-2 gap-2">
         {(['expense', 'income'] as const).map((option) => (
           <button
@@ -102,10 +84,8 @@ export default function TransactionForm({ onAdded }: Props) {
             type="button"
             aria-pressed={kind === option}
             onClick={() => setKind(option)}
-            className={`rounded-lg border px-3 py-2 font-medium capitalize transition ${
-              kind === option
-                ? 'border-ink bg-ink text-paper'
-                : 'border-line bg-card text-ink hover:border-ink/40'
+            className={`min-h-11 rounded-md border-2 border-edge font-receipt text-sm font-bold tracking-wider uppercase transition ${
+              kind === option ? 'bg-highlight text-ink' : 'bg-transparent text-ink hover:bg-tab'
             }`}
           >
             {option}
@@ -113,55 +93,55 @@ export default function TransactionForm({ onAdded }: Props) {
         ))}
       </div>
 
-      <Field id="amount" label="Amount" error={fieldErrors.amount}>
-        <input
-          id="amount"
-          type="text"
-          inputMode="decimal"
-          placeholder="0.00"
-          value={amount}
-          onChange={(event) => setAmount(event.target.value)}
-          aria-invalid={fieldErrors.amount ? true : undefined}
-          className={`${inputClass(Boolean(fieldErrors.amount))} font-mono`}
-        />
-      </Field>
+      <div className="grid grid-cols-2 gap-x-5 gap-y-3">
+        <Field id="amount" label="Amount" error={fieldErrors.amount}>
+          <input
+            id="amount"
+            type="text"
+            inputMode="decimal"
+            placeholder="0.00"
+            value={amount}
+            onChange={(event) => setAmount(event.target.value)}
+            aria-invalid={fieldErrors.amount ? true : undefined}
+            className={inputClass(Boolean(fieldErrors.amount))}
+          />
+        </Field>
 
-      <Field id="category" label="Category" error={fieldErrors.category}>
-        <input
-          id="category"
-          type="text"
-          list="category-ideas"
-          value={category}
-          onChange={(event) => setCategory(event.target.value)}
-          aria-invalid={fieldErrors.category ? true : undefined}
-          className={inputClass(Boolean(fieldErrors.category))}
-        />
-        <datalist id="category-ideas">
-          {CATEGORY_IDEAS.map((idea) => (
-            <option key={idea} value={idea} />
-          ))}
-        </datalist>
-      </Field>
+           <Field id="category" label="Category" error={fieldErrors.category}>
+          <input
+            id="category"
+            type="text"
+            value={category}
+            onChange={(event) => setCategory(event.target.value)}
+            aria-invalid={fieldErrors.category ? true : undefined}
+            className={inputClass(Boolean(fieldErrors.category))}
+          />
+        </Field>
 
-      <Field id="note" label="Note (optional)" error={fieldErrors.note}>
-        <input
-          id="note"
-          type="text"
-          value={note}
-          onChange={(event) => setNote(event.target.value)}
-          className={inputClass(Boolean(fieldErrors.note))}
-        />
-      </Field>
+        <div className="col-span-2">
+          <CategoryChips ideas={CATEGORY_IDEAS} value={category} onPick={setCategory} />
+        </div>
 
-      <Field id="occurredOn" label="Date" error={fieldErrors.occurredOn}>
-        <input
-          id="occurredOn"
-          type="date"
-          value={occurredOn}
-          onChange={(event) => setOccurredOn(event.target.value)}
-          className={inputClass(Boolean(fieldErrors.occurredOn))}
-        />
-      </Field>
+        <Field id="note" label="Note (optional)" error={fieldErrors.note}>
+          <input
+            id="note"
+            type="text"
+            value={note}
+            onChange={(event) => setNote(event.target.value)}
+            className={inputClass(Boolean(fieldErrors.note))}
+          />
+        </Field>
+
+        <Field id="occurredOn" label="Date" error={fieldErrors.occurredOn}>
+          <input
+            id="occurredOn"
+            type="date"
+            value={occurredOn}
+            onChange={(event) => setOccurredOn(event.target.value)}
+            className={inputClass(Boolean(fieldErrors.occurredOn))}
+          />
+        </Field>
+      </div>
 
       {formError && !hasFieldErrors && (
         <p role="alert" className="text-sm text-no">
@@ -169,12 +149,8 @@ export default function TransactionForm({ onAdded }: Props) {
         </p>
       )}
 
-      <button
-        type="submit"
-        disabled={submitting}
-        className="w-full rounded-lg bg-ink px-4 py-3 font-medium text-paper transition hover:bg-ink/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink disabled:opacity-60"
-      >
-        {submitting ? 'One sec...' : 'Add to ledger'}
+      <button type="submit" disabled={submitting} className={primaryButtonClass}>
+        {submitting ? 'One sec...' : 'File it'}
       </button>
     </form>
   )

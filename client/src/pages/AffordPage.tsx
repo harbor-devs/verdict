@@ -1,18 +1,28 @@
 import { useState, type FormEvent, type ReactNode } from 'react'
-import { Link } from 'react-router'
 import { api, ApiError } from '../api/client'
 import type { VerdictLevel, VerdictReason, VerdictResponse } from '../api/types'
+import { Card, PageHeader } from '../components/CaseFile'
+import { CategoryChips, Field } from '../components/FormBits'
+import { Stamp } from '../components/Receipt'
+import { currentCase } from '../lib/caseNumber'
 import { useAuth } from '../lib/authContext'
 import { formatMoney } from '../lib/format'
+import { inputClass, primaryButtonClass } from '../lib/formStyles'
 
 // Only suggestions. The server accepts any category you type.
 const CATEGORY_IDEAS = ['food', 'transport', 'bills', 'rent', 'shopping', 'fun', 'health', 'other']
 
-// Full class names written out so Tailwind can see them.
-const STAMP_STYLE: Record<VerdictLevel, string> = {
-  YES: 'border-yes text-yes',
-  RISKY: 'border-risky text-risky',
-  NO: 'border-no text-no',
+const TONE: Record<VerdictLevel, 'yes' | 'risky' | 'no'> = {
+  YES: 'yes',
+  RISKY: 'risky',
+  NO: 'no',
+}
+
+// Handwritten line under the verdict. Only lives on this screen.
+const SCRIBBLE: Record<VerdictLevel, string> = {
+  YES: 'go on then.',
+  RISKY: 'think twice.',
+  NO: 'put it down.',
 }
 
 const REASON_TEXT: Record<VerdictReason, string> = {
@@ -22,34 +32,36 @@ const REASON_TEXT: Record<VerdictReason, string> = {
   THIN_BUFFER: 'You can pay for it, but it leaves a thin cushion for the month.',
 }
 
-function inputClass(hasError: boolean): string {
-  return `mt-1.5 w-full rounded-lg border bg-card px-3.5 py-2.5 text-base outline-none transition focus:ring-2 focus:ring-yes/30 ${
-    hasError ? 'border-no' : 'border-line focus:border-yes'
-  }`
+function Divider() {
+  return <div className="my-2 border-t-2 border-dashed border-line" />
 }
 
-type FieldProps = { id: string; label: string; error?: string; children: ReactNode }
-
-function Field({ id, label, error, children }: FieldProps) {
+// A tight receipt row: label, dotted line, amount
+function Row({
+  label,
+  value,
+  valueClassName = '',
+}: {
+  label: string
+  value: string
+  valueClassName?: string
+}) {
   return (
-    <div>
-      <label htmlFor={id} className="block text-sm font-medium">
-        {label}
-      </label>
-      {children}
-      {error && <p className="mt-1 text-sm text-no">{error}</p>}
+    <div className="ledger-row py-1! text-sm">
+      <dt>{label}</dt>
+      <dd className={`font-receipt font-bold ${valueClassName}`}>{value}</dd>
     </div>
   )
 }
 
-type RowProps = { label: string; value: string }
-
-function ReceiptRow({ label, value }: RowProps) {
+function ReceiptHead({ children }: { children?: ReactNode }) {
   return (
-    <div className="flex items-start justify-between gap-4 py-2">
-      <dt className="text-muted">{label}</dt>
-      <dd className="shrink-0 font-mono text-sm">{value}</dd>
-    </div>
+    <>
+      <p className="text-center font-receipt text-base font-bold tracking-widest uppercase">
+        Verdict.
+      </p>
+      <p className="text-center font-receipt text-xs text-muted uppercase">{children}</p>
+    </>
   )
 }
 
@@ -63,6 +75,12 @@ export default function AffordPage() {
   const [result, setResult] = useState<VerdictResponse | null>(null)
 
   const currency = user?.currency ?? 'PKR'
+  const today = new Date().toLocaleDateString('en', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
+  const headLine = `No. ${currentCase()} · ${today}`
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -96,103 +114,147 @@ export default function AffordPage() {
   const hasFieldErrors = Object.keys(fieldErrors).length > 0
 
   return (
-    <main className="mx-auto max-w-md px-5 py-6">
-      <Link to="/" className="text-sm font-medium underline underline-offset-4">
-        Back to Home
-      </Link>
-      <h1 className="mt-4 font-display text-3xl font-bold">Can I afford this?</h1>
-      <p className="mt-1 text-muted">Type the price and get a straight answer. Nothing is saved.</p>
+    <main className="mx-auto grid w-full max-w-6xl gap-10 px-5 py-4 md:h-full md:grid-cols-[1fr_320px] md:items-start md:px-14">
+      <div>
+        <PageHeader label="Pre-trial" title="Can I afford this?" note="ask before you swipe" />
 
-      <section className="mt-5 rounded-2xl border border-line bg-card p-5">
-        <form onSubmit={handleSubmit} noValidate className="space-y-4">
-          <Field id="afford-amount" label="How much is it?" error={fieldErrors.amount}>
-            <input
-              id="afford-amount"
-              type="text"
-              inputMode="decimal"
-              placeholder="0.00"
-              value={amount}
-              onChange={(event) => {
-                setAmount(event.target.value)
-                setResult(null)
-              }}
-              aria-invalid={fieldErrors.amount ? true : undefined}
-              className={`${inputClass(Boolean(fieldErrors.amount))} font-mono`}
-            />
-          </Field>
+        <div className="max-w-md">
+          <Card tab="The purchase">
+            <form onSubmit={handleSubmit} noValidate className="space-y-4">
+              <Field id="afford-amount" label="How much is it?" error={fieldErrors.amount}>
+                <input
+                  id="afford-amount"
+                  type="text"
+                  inputMode="decimal"
+                  placeholder="0.00"
+                  value={amount}
+                  onChange={(event) => {
+                    setAmount(event.target.value)
+                    setResult(null)
+                  }}
+                  aria-invalid={fieldErrors.amount ? true : undefined}
+                  className={inputClass(Boolean(fieldErrors.amount))}
+                />
+              </Field>
 
-          <Field id="afford-category" label="Category (optional)" error={fieldErrors.category}>
-            <input
-              id="afford-category"
-              type="text"
-              list="afford-category-ideas"
-              value={category}
-              onChange={(event) => {
-                setCategory(event.target.value)
-                setResult(null)
-              }}
-              aria-invalid={fieldErrors.category ? true : undefined}
-              className={inputClass(Boolean(fieldErrors.category))}
-            />
-            <datalist id="afford-category-ideas">
-              {CATEGORY_IDEAS.map((idea) => (
-                <option key={idea} value={idea} />
-              ))}
-            </datalist>
-          </Field>
+              <Field id="afford-category" label="Category (optional)" error={fieldErrors.category}>
+                     <input
+                  id="afford-category"
+                  type="text"
+                  value={category}
+                  onChange={(event) => {
+                    setCategory(event.target.value)
+                    setResult(null)
+                  }}
+                  aria-invalid={fieldErrors.category ? true : undefined}
+                  className={inputClass(Boolean(fieldErrors.category))}
+                />
+                <CategoryChips
+                  ideas={CATEGORY_IDEAS}
+                  value={category}
+                  onPick={(idea) => {
+                    setCategory(idea)
+                    setResult(null)
+                  }}
+                />
+              </Field>
 
-          <p className="text-sm text-muted">
-            Add a category to also check it against your budget for that category.
-          </p>
+              <p className="text-sm text-muted">
+                Add a category to also check it against your budget for that category.
+              </p>
 
-          {formError && !hasFieldErrors && (
-            <p role="alert" className="text-sm text-no">
-              {formError}
-            </p>
-          )}
+              {formError && !hasFieldErrors && (
+                <p role="alert" className="text-sm text-no">
+                  {formError}
+                </p>
+              )}
 
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full rounded-lg bg-ink px-4 py-3 font-medium text-paper transition hover:bg-ink/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink disabled:opacity-60"
-          >
-            {submitting ? 'Thinking...' : 'Give me the verdict'}
-          </button>
-        </form>
-      </section>
+              <button type="submit" disabled={submitting} className={primaryButtonClass}>
+                {submitting ? 'Thinking...' : 'Check it'}
+              </button>
+            </form>
+          </Card>
 
-      {result && (
-        <section
-          role="status"
-          className="mt-4 rounded-2xl border border-line bg-card p-5 text-center"
-        >
-          <div className="py-3">
-            <div
-              className={`inline-block -rotate-6 rounded-lg border-4 px-5 py-1 font-display text-4xl font-bold uppercase tracking-widest ${STAMP_STYLE[result.verdict]}`}
-            >
-              {result.verdict}
-            </div>
+          <div className="mt-6 grid grid-cols-3 gap-2">
+            {(['yes', 'risky', 'no'] as const).map((tone) => (
+              <div
+                key={tone}
+                className="flex justify-center rounded-md border-2 border-edge bg-card py-2"
+              >
+                <Stamp tone={tone} size="sm">
+                  {tone}
+                </Stamp>
+              </div>
+            ))}
           </div>
+        </div>
+      </div>
 
-          <p className="mt-2 text-lg font-medium">{result.message}</p>
-          <p className="mt-1 text-sm text-muted">{REASON_TEXT[result.reason]}</p>
+      {/* The receipt: narrow and tall, like a real till slip */}
+      <div className="receipt-shadow h-fit w-full">
+        {result ? (
+          <section
+            role="status"
+            key={`${result.amount}-${result.verdict}`}
+            className="receipt receipt-print px-5 py-7 text-ink"
+          >
+            <ReceiptHead>{headLine}</ReceiptHead>
 
-          <dl className="mt-4 divide-y divide-dashed divide-line border-y border-dashed border-line text-left">
-            <ReceiptRow label="Price" value={formatMoney(result.amount, currency)} />
-            <ReceiptRow label="Balance now" value={formatMoney(result.balance, currency)} />
-            <ReceiptRow
-              label="Balance after buying"
-              value={formatMoney(result.remainingBalance, currency)}
-            />
-            {result.budget && (
-              <ReceiptRow
-                label="Spent so far in that budget"
-                value={`${formatMoney(result.budget.spentThisMonth, currency)} of ${formatMoney(result.budget.limit, currency)}`}
+            <Divider />
+
+            <div className="flex justify-center">
+              <Stamp tone={TONE[result.verdict]}>{result.verdict}</Stamp>
+            </div>
+            <h2 className="mt-1 text-center font-display text-xl leading-[1.1] font-extrabold tracking-tight">
+              {result.message}
+            </h2>
+            <p className="mt-1.5 text-center text-xs text-muted">{REASON_TEXT[result.reason]}</p>
+
+            <Divider />
+
+            <dl>
+              <Row label="Price" value={formatMoney(result.amount, currency)} />
+              <Row label="Balance now" value={formatMoney(result.balance, currency)} />
+              <Row
+                label="After buying"
+                value={formatMoney(result.remainingBalance, currency)}
+                valueClassName={result.remainingBalance.startsWith('-') ? 'text-no' : ''}
               />
-            )}
-          </dl>
-        </section>
-      )}
+              {result.budget && (
+                <>
+                  <Row
+                    label="Budget used"
+                    value={formatMoney(result.budget.spentThisMonth, currency)}
+                  />
+                  <Row label="Budget limit" value={formatMoney(result.budget.limit, currency)} />
+                </>
+              )}
+            </dl>
+
+            <Divider />
+
+            <p className="-rotate-2 text-center font-hand text-2xl text-no">
+              {SCRIBBLE[result.verdict]}
+            </p>
+            <div className="receipt-barcode mx-auto mt-2 h-6 w-4/5" aria-hidden="true" />
+            <p className="mt-1.5 text-center font-receipt text-xs tracking-widest text-muted uppercase">
+              Nothing was saved
+            </p>
+          </section>
+        ) : (
+          <section className="receipt px-5 py-7 text-ink">
+            <ReceiptHead>{headLine}</ReceiptHead>
+            <Divider />
+            <h2 className="text-center font-display text-xl leading-[1.1] font-extrabold tracking-tight">
+              Type a price. The court will rule.
+            </h2>
+            <p className="mt-1.5 text-center text-xs text-muted">
+              Nothing is saved, it is only a check.
+            </p>
+            <div className="receipt-barcode mx-auto mt-4 h-6 w-4/5" aria-hidden="true" />
+          </section>
+        )}
+      </div>
     </main>
   )
 }

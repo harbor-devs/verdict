@@ -2,6 +2,9 @@
 @import "@fontsource-variable/bricolage-grotesque/wght.css";
 @import "@fontsource/dm-mono/400.css";
 @import "@fontsource/dm-mono/500.css";
+@import "@fontsource/space-mono/400.css";
+@import "@fontsource/space-mono/700.css";
+@import "@fontsource/caveat/700.css";
 @import "tailwindcss";
 
 @theme {
@@ -9,18 +12,43 @@
   --font-sans: "DM Sans Variable", system-ui, sans-serif;
   --font-display: "Bricolage Grotesque Variable", system-ui, sans-serif;
   --font-mono: "DM Mono", ui-monospace, monospace;
+  --font-receipt: "Space Mono", ui-monospace, monospace;
+  --font-hand: "Caveat", cursive;
 
-  /* Paper and ink */
-  --color-paper: #f7f2e8;
+  /* Page and cards: cream paper, near-black ink. Names stay the same so every screen picks up the new look. */
+  --color-paper: #d9e4d5;
   --color-card: #fffdf8;
-  --color-line: #e3dccb;
-  --color-ink: #1c1b17;
-  --color-muted: #6b665a;
+  --color-line: #bdb5a3;
+  --color-edge: #1f1d1a;
+  --color-tab: #e8e1d0;
+  --color-highlight: #f2d64b;
+  --color-brand: #f2d64b;
 
-  /* Verdict colours (dark enough to read as text on paper) */
-  --color-yes: #1f6b4a;
-  --color-risky: #9a5f0b;
-  --color-no: #b3361f;
+  /* Text */
+  --color-ink: #1f1d1a;
+  --color-muted: #55504a;
+
+  /* The roast card (dark, so the roast is the loudest thing on the page) */
+  --color-roast: #1f1d1a;
+  --color-roast-muted: #bdb5a3;
+
+  /* Verdict colours on light paper */
+  --color-yes: #1f7a4d;
+  --color-risky: #9a5b00;
+  --color-no: #b3261e;
+
+  /* Verdict colours on the dark roast card */
+  --color-yes-soft: #8fd9a8;
+  --color-risky-soft: #f0b95a;
+  --color-no-soft: #ffb3a3;
+
+  /* Hard offset shadow: the "pasted on paper" look */
+  --shadow-hard: 6px 6px 0 #1f1d1a;
+  --shadow-hard-yellow: 7px 7px 0 #f2d64b;
+}
+
+html {
+  color-scheme: light;
 }
 
 html,
@@ -35,4 +63,8 @@ body {
   color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+}
+/* Space Mono makes spaces very wide. This pulls the words closer together. */
+.font-receipt {
+  word-spacing: -0.3em;
 }
