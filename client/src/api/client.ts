@@ -1,6 +1,6 @@
 // Talks to the Verdict backend. Every screen will use this one helper.
 
-const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:4000'
+const BASE_URL = import.meta.env.VITE_API_URL ?? (import.meta.env.PROD ? '' : 'http://localhost:4000')
 
 // The backend always sends errors as { error: { code, message, fields? } }
 export class ApiError extends Error {
