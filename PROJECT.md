@@ -1,25 +1,40 @@
-- Screens: Sign up and Log in, Home, Transactions, Budgets, Goals, Can I afford this? (at /afford). All done and checked by hand.
-- Shared navigation bar (components/NavBar.tsx) shows on every screen when logged in. The "Back to Home" links on pages stay until the design pass.
+# Roadmap
 
-## Status log
-- 2026-11-04: repo created under harbor-devs, Git set up, docs added, Express server with health route.
-- 2026-11-04: Phase 2 done (PostgreSQL schema and migrations). Phase 3 done: signup, login, logout, /me, scrypt password hashing, cookie sessions (token hash stored in the database), zod validation, helmet, CORS, rate limiting. Failure cases tested by hand, no automated tests yet.
-- 2026-11-04: Verdict engine built (YES, RISKY, NO with a 20 percent buffer rule), humour voice lines, exact money helpers, 16 automated tests. API routes built and hand-tested: transactions (add, list, delete), budgets (set, list, delete), and the "can I afford this?" verdict route.
-- 2026-11-05: Savings goals routes built and hand-tested (add, list with progress, add money, delete). Score engine built with 11 automated tests, plus the score route (saves one row per day in score history) and a score history route, hand-tested.
-- 2026-11-05: Score humour lines and tips added. Shared amount and date checks moved into lib/validation.ts and used by the budgets, transactions and goals routes. Backend routes are complete for the first version.
-- 2026-11-05: Phase 5 started. Frontend setup, design direction, fonts, API helper, auth context and the Log in and Sign up screen done and tested by hand (signup, login, refresh keeps session, logout).
-- 2026-11-05: Added GET /api/summary (balance, this month's income and spending), checked by hand in the browser. Home screen built (balance, month receipt, score card). Empty state checked in the browser.
-- 2026-11-07: Transactions screen built (newest 50, add form, delete with a confirm step). Add, list and delete all checked by hand: Home balance, month totals and score matched.
-- 2026-11-07: Budgets screen built (set or change a limit, list with spent so far and a bar, delete with a confirm step). Checked by hand, including the Home budget points.
-- 2026-11-07: Goals screen built (add a goal with optional target date, progress bar, add money per goal, delete with a confirm step). Progress, remaining and reached come from the server. Fixed a file name casing problem (GoalForm.tsx) so it also works on Linux for deploy.
-- 2026-11-07: Can I afford this? screen built (price and optional category in, stamp and voice line out, receipt rows, category budget when one exists). Uses the real POST /api/verdict route and saves nothing.
-- 2026-11-07: Shared navigation bar added. All Phase 5 screens are now reachable from it.
+## Done
 
-## Still open (backend)
-- Automated route tests (needs a separate test database)
-- Editing transactions and budgets (only add and delete exist)
-- Month filter for the transactions list (it returns the newest 50 from all months)
-- Deploy settings: trust proxy, CSRF review, secure cookies
+### Backend
+- PostgreSQL schema and migrations
+- Authentication: signup, login, logout, current user, scrypt hashing, hashed session tokens in cookies
+- Security: Zod validation, Helmet, CORS, rate limiting
+- Verdict engine (YES, RISKY, NO with a 20 percent buffer rule) and personality voice lines
+- Exact money helpers working in paisa
+- Routes: transactions, budgets, savings goals, verdict, score with daily history, summary
+- Unit tests for the engines and money helpers
+
+### Frontend
+- Screens: Sign up and Log in, Home, Transactions, Budgets, Goals, Can I afford this?
+- Shared navigation bar
+- Unified "case file" visual design
+
+### Deployment
+- Database on Neon
+- API on Render
+- Same-origin `/api` proxy configuration for the frontend
 
 ## Next
-One unified design pass across all screens using real UI references (not page by page). Then Phase 6: deploy.
+
+- Frontend deployment
+- Wake-up handling for the free-tier API cold start (friendly loading message and retry)
+- Rewrite README with live link and screenshots
+- CSRF review
+- Automated route tests against a separate test database
+- Editing transactions and budgets (currently add and delete only)
+- Month filter for the transactions list
+
+## Changelog
+
+- **2026-11-04:** Repository, Express server, database schema, authentication, verdict engine, core API routes
+- **2026-11-05:** Savings goals, score engine and history, summary route, frontend setup, auth screens, Home screen
+- **2026-11-07:** Transactions, Budgets, Goals and "Can I afford this?" screens, shared navigation
+- **2026-11-08:** Unified visual design across all screens
+- **2026-11-09:** Hosted database (Neon), API deployed to Render, proxy setup for the frontend
