@@ -8,6 +8,7 @@ import { pool } from "./db";
 import { apiRouter } from "./routes/api";
 
 const app = express();
+app.set("trust proxy", 1);
 const port = Number(process.env.PORT) || 4000;
 const clientOrigin = process.env.CLIENT_ORIGIN || "http://localhost:5173";
 
