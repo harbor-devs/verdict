@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router'
 import NavBar from './components/NavBar'
+import WakingUp from './components/WakingUp'
 import { useAuth } from './lib/authContext'
 import AffordPage from './pages/AffordPage'
 import AuthPage from './pages/AuthPage'
@@ -13,7 +14,7 @@ export default function App() {
 
   // Wait until we know whether the visitor is logged in
   if (loading) {
-    return <p className="p-6 text-muted">Loading...</p>
+    return <WakingUp />
   }
 
   return (
